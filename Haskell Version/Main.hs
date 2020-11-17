@@ -24,16 +24,17 @@ parse (scr, mv, qmv)
       conc = "search depth: " ++ show qmv
 
 main :: IO()
-main = do [ fil e n am e , c a s e s ] <− getArgs
-c o n t e n t s <− readF ile fil e n am e
-l e t b rd s = map (fromJust . fromFEN ) . take ( read c a s e s ) $ l in e s c o n t e n t s
-r e s u l t s = map p a r s e (map s o l v e b rd s ‘ u sin g ‘ p a r Li s t r s e q )
-sequence $ map putStrLn r e s u l t s
-‘ ca tch IOE r ro r ‘ \ e −> do
-pn <− getProgName
-di e $ case ioeGetFileName e o f
-Just f n | isDoesNotExistError e −> f n ++ ” : no such f i l e ”
-| isPermissionError e −> f n ++ ” : P e rmi s si o n denied ”
-| isUserError e −> ”Usage : ” ++ pn ++
-” <fil e n am e> <# o f t e s t c a s e s>”
-| otherwise −> show e
+main = do [filename, cases] <− getArgs
+          contents <− readFile filename
+          let brds = map (fromJust . fromFEN) . take (read cases) $ lines contents
+              results = map parse (map solve brds `using` parList rseq)
+          sequence $ map putStrLn results
+          
+`catchIOError` \ e −> do
+  pn <− getProgName
+  die $ case ioeGetFileName e of
+    Just fn | isDoesNotExistError e −> fn ++ ": no such file"
+            | isPermissionError e   −> fn ++ ": Permission denied"
+            | isUserError e         −> "Usage : " ++ pn ++
+                " <filename> <# of test cases>"
+            | otherwise −> show e
