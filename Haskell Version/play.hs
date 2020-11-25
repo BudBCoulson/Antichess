@@ -1,10 +1,10 @@
 import Data.Maybe
 import System.Environment (getArgs)
-import Chess; import Chess.FEN; import Minimax
+import Chess; import Chess.FEN; import Minimax; import AChess
 
 play :: Board -> IO()
 play brd = do putStrLn $ show brd
-              mv <− getLine
+              mv <- getLine
               if mv == ”best” 
               then putStrLn . show $ itDeep 1 6 brd
               else
@@ -15,7 +15,7 @@ play brd = do putStrLn $ show brd
               play brd
               
 main :: IO()
-main = do args <− getArgs
+main = do args <- getArgs
           let brd = case args of
                     [] -> Chess.FEN.defaultBoard
                     fen -> fromJust . fromFEN $ unwords fen

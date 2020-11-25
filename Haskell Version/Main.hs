@@ -1,6 +1,8 @@
+{-# LANGUAGE BlockArguments #-}
+
 import Data.Maybe
-import Chess; import Chess.FEN
-import Minimax
+import Chess; import ChessFEN
+import Minimax; import AChess
 import Control.Parallel.Strategies (using, parList, rseq)
 import System.Environment (getArgs, getProgName)
 import System.IO.Error (catchIOError, isUserError, isDoesNotExistError,
@@ -24,17 +26,17 @@ parse (scr, mv, qmv)
       conc = "search depth: " ++ show qmv
 
 main :: IO()
-main = do [filename, cases] <− getArgs
-          contents <− readFile filename
+main = do [filename, cases] <- getArgs
+          contents <- readFile filename
           let brds = map (fromJust . fromFEN) . take (read cases) $ lines contents
               results = map parse (map solve brds `using` parList rseq)
           sequence $ map putStrLn results
           
-`catchIOError` \ e -> do
-  pn <− getProgName
-  die $ case ioeGetFileName e of
-    Just fn | isDoesNotExistError e -> fn ++ ": no such file"
-            | isPermissionError e   -> fn ++ ": Permission denied"
-            | isUserError e         -> "Usage : " ++ pn ++
-                " <filename> <# of test cases>"
-            | otherwise -> show e
+  `catchIOError` \e -> do
+    pn <- getProgName
+    die $ case ioeGetFileName e of
+      Just fn | isDoesNotExistError e -> fn ++ ": no such file"
+              | isPermissionError e   -> fn ++ ": Permission denied"
+              | isUserError e         -> "Usage : " ++ pn ++
+                  " <filename> <# of test cases>"
+              | otherwise -> show e

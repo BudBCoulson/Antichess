@@ -13,15 +13,16 @@ module Minimax ( MinimaxTree (..)
 import Data.Maybe
 import Data.List
 import Chess
+import AChess
 import Control.Parallel.Strategies (using, parList, rseq)
 
-−− Get all possible moves
+-- Get all possible moves
 moveList :: Board -> [(Int, Int, Int, Int)]
 moveList brd
   | null caps = empty
-  | otherwise = cap s
+  | otherwise = caps
     where
-      empty = [(x, y, fst z, snd z) | x <− [0..7], y <− [0..7], z <− movesFrom x y brd]
+      empty = [(x, y, fst z, snd z) | x <- [0..7], y <- [0..7], z <- movesFrom x y brd]
       caps = filter (\(_, _, x2, y2) -> isJust $ pieceAt x2 y2 brd) empty
 
 
@@ -46,11 +47,11 @@ next (Partial _ nxt _) = nxt
 next _                 = error ("Next called on leaf")
 
 nextBoards :: Board -> [Board]
-nextBoards brd = [(fixedMove x y x2 y2) | (x, y, x2, y2) <− moveList brd]
+nextBoards brd = [(fixedMove x y x2 y2) | (x, y, x2, y2) <- moveList brd]
     where
       fixedMove x y x2 y2 = case move' x y x2 y2 brd of
-      Right new brd -> new brd
-      Left -> error ("Invalid move given")
+        Right new_brd -> new_brd
+        Left _ -> error ("Invalid move given")
 
 minimaxFrom' :: MinimaxTree -> Board -> MinimaxTree
 minimaxFrom' parent brd
@@ -76,7 +77,7 @@ fromRoot (Final brd parent)   = brd:(fromRoot parent)
 -- Static evaluation. 100 = win.
 score :: MinimaxTree -> Int
 score (Final brd _) = if turn brd == White then 100 else -100
-score mmTree        = max (−99) $ min 99 heuristic
+score mmTree        = max (-99) $ min 99 heuristic
   where
     brd       = boardOf mmTree
     mult      = if turn brd == White then 1 else -1
@@ -85,16 +86,16 @@ score mmTree        = max (−99) $ min 99 heuristic
     flexMe    = length (next mmTree)
     flexOp    = length (moveList brd{turn =
                   if turn brd == White then Black else White})
-    heuristic = 10 ∗ (qBlack `div` qWhite - 1) + mult ∗ (flexMe - flexOp)
+    heuristic = 10 * (qBlack `div` qWhite - 1) + mult * (flexMe - flexOp)
 
 -- Simplified minimax
 negaMax :: Int -> MinimaxTree -> Int
-negaMax _ (Final brd _) = if (turn brd == White) then 100 else −100
+negaMax _ (Final brd _) = if (turn brd == White) then 100 else -100
 negaMax n mmTree
-  | n == 0    = mult ∗ (score mmTree)
+  | n == 0    = mult * (score mmTree)
   | otherwise = -minimum (map (negaMax (n-1)) nb `using` parList rseq)
     where
-      nb = take 4 $ sortOn (negate . (∗ mult) . score) $ next mmTree
+      nb = take 4 $ sortOn (negate . (* mult) . score) $ next mmTree
       brd = boardOf mmTree
       mult = if (turn brd == White) then 1 else -1
       
@@ -110,7 +111,7 @@ miniMaxWithMoves n mmTree =
                    `using` parList rseq
 
 -- Calls minimax with increasing depth until answer.
-itDeep : : Int -> Int -> Board -> (Int, [Char], Int)
+itDeep :: Int -> Int -> Board -> (Int, [Char], Int)
 itDeep depth limit brd
   | abs (fst results) == 100 || depth > limit = ret
   | otherwise = itDeep (depth+1) limit brd
