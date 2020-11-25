@@ -10,10 +10,12 @@ Common features:
 * A minimax AI for the computer player.
 
 Python:
+* Built up out of an older Python 2 chess program.
 * Includes a graphical representation of the chessboard in the terminal.
 * Gives more details about the AI's thinking process as it runs.
 
 Haskell:
+* Adapted from: http://www.cs.columbia.edu/~sedwards/classes/2019/4995-fall/reports/suicide-chess.pdf
 * A slightly better implementation of the minimax AI.
 
 Features to add:
