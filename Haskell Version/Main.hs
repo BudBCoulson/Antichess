@@ -8,11 +8,11 @@ import System.IO.Error (catchIOError, isUserError, isDoesNotExistError,
 import System.Exit (die)
 
 -- Main entry point. Solves board, returns score (White wins) + best first move
-solve :: Board −> (Int, [Char], Int)
+solve :: Board -> (Int, [Char], Int)
 solve brd = itDeep 1 8 brd
 
 -- Formats the result into something readable
-parse :: (Int, [Char], Int) −> [Char]
+parse :: (Int, [Char], Int) -> [Char]
 parse (scr, mv, qmv)
   | scr == 100 
       && odd qmv = intro ++ ", White highly favored," ++ conc
@@ -30,11 +30,11 @@ main = do [filename, cases] <− getArgs
               results = map parse (map solve brds `using` parList rseq)
           sequence $ map putStrLn results
           
-`catchIOError` \ e −> do
+`catchIOError` \ e -> do
   pn <− getProgName
   die $ case ioeGetFileName e of
-    Just fn | isDoesNotExistError e −> fn ++ ": no such file"
-            | isPermissionError e   −> fn ++ ": Permission denied"
-            | isUserError e         −> "Usage : " ++ pn ++
+    Just fn | isDoesNotExistError e -> fn ++ ": no such file"
+            | isPermissionError e   -> fn ++ ": Permission denied"
+            | isUserError e         -> "Usage : " ++ pn ++
                 " <filename> <# of test cases>"
-            | otherwise −> show e
+            | otherwise -> show e
