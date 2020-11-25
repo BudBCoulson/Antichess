@@ -16,6 +16,7 @@ Python:
 
 Haskell:
 * Adapted from: http://www.cs.columbia.edu/~sedwards/classes/2019/4995-fall/reports/suicide-chess.pdf
+* Chess modules copied from Stackage to enable access to hidden functions
 * A slightly better implementation of the minimax AI.
 
 Features to add:
